@@ -1,0 +1,39 @@
+{
+  "name": "matic-funder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "funding": "node funder.js",
+    "format": "standard --fix",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WeatherXM/matic-funder.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/WeatherXM/matic-funder/issues"
+  },
+  "homepage": "https://github.com/WeatherXM/matic-funder#readme",
+  "devDependencies": {
+    "husky": "^8.0.1",
+    "standard": "^16.0.4"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "chrome-launcher": "^0.15.1",
+    "dotenv": "^16.0.1",
+    "ethers": "^5.6.9",
+    "puppeteer": "^15.5.0",
+    "web3": "^1.7.4",
+    "winston": "^3.8.1"
+  },
+  "engines": {
+    "node": "16.x.x",
+    "npm": "8.x.x"
+  }
+}
