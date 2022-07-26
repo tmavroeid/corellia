@@ -68,8 +68,6 @@ async function main () {
     info(receipts)
   } catch (err) {
     error('MATIC FUNDER', err)
-    console.log('skata')
-    console.log(err)
   }
 }
 
