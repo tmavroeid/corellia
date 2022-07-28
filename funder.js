@@ -16,7 +16,7 @@ const error = (message, stacktrace = undefined) => logger.log('error', `${messag
 async function getMatic () {
   try {
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       args: [
         '--disable-gpu',
         '--disable-dev-shm-usage',
@@ -36,45 +36,69 @@ async function getMatic () {
     await page.type('#root > div.alchemy-app > div.alchemy-app-content-container > div:nth-child(2) > div.row > div > span > div:nth-child(1) > div.col-md-9.col-sm-12 > input', fundedAddress)
     const element = await page.waitForSelector('#root > div.alchemy-app > div.alchemy-app-content-container > div:nth-child(2) > div.row > div > span > div:nth-child(1) > div.col-md-3.col-sm-12 > button')
     await element.evaluate(sendMatic => sendMatic.click())
-    setTimeout(async () => {
-      if (await page.$('#root > div.alchemy-app > div.alchemy-app-content-container > div.alchemy-faucet-title-component.container > div.faucet-banner-container.show > div') !== null) {
-        throw new Error('Too soon for funding.')
-      } else {
-        info(`Funding of ${fundedAddress} completed successfully`)
-        await page.waitForSelector('#root > div.basket > div > div > h3')
-        return distributeMatic()
-      }
-    }, '3000')
+    browser.close()
   } catch (err) {
     return err
   }
 }
 
+function delay (ms) {
+  info(`DELAY ${ms} millisecs`)
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+function retryGetBalance (fundedAddress, retriesLeft = 10) {
+  return web3.eth.getBalance(fundedAddress)
+    .then((balance) => {
+      if (web3.utils.fromWei(String(balance)) > 5) {
+        return web3.utils.fromWei(String(balance))
+      } else {
+        throw new Error('Balance is not updated')
+      }
+    })
+    .catch((error) => {
+      if (retriesLeft === 1) {
+        info('MAXIMUM RETRIES EXCEEDED')
+        return Promise.reject(error)
+      }
+
+      info(`RETRYING GET BALANCE FOR ${fundedAddress}`)
+      return delay(10000).then(() => { return retryGetBalance(fundedAddress, retriesLeft - 1) })
+    })
+}
+
 async function distributeMatic () {
   const receipts = []
   const gasPrice = await web3.eth.getGasPrice()
-  for (const address of addresses) {
-    const transaction = {
-      from: fundedAddress,
-      to: web3.utils.toChecksumAddress(address),
-      data: '0x',
-      value: web3.utils.toWei('1'),
-      gasLimit: web3.utils.toHex('21000'),
-      gasPrice: web3.utils.toHex((gasPrice))
-    }
-    const signedTx = await web3.eth.accounts.signTransaction(
-      transaction,
-      fundedAddressPrivateKey
-    )
-    const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
-    receipts.push(receipt.transactionHash)
-  }
-  return receipts
+  return retryGetBalance(fundedAddress)
+    .then(async (balance) => {
+      for (const address of addresses) {
+        const transaction = {
+          from: fundedAddress,
+          to: web3.utils.toChecksumAddress(address),
+          data: '0x',
+          value: web3.utils.toWei('1'),
+          gasLimit: web3.utils.toHex('21000'),
+          gasPrice: web3.utils.toHex((gasPrice))
+        }
+        const signedTx = await web3.eth.accounts.signTransaction(
+          transaction,
+          fundedAddressPrivateKey
+        )
+        const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
+        receipts.push(receipt.transactionHash)
+      }
+      return receipts
+    })
+    .catch((err) => {
+      return err
+    })
 }
 
 async function main () {
   try {
-    const receipts = await getMatic()
+    await getMatic()
+    const receipts = await distributeMatic()
     Array.isArray(receipts) ? info(receipts) : info('NO FUNDING TOOK PLACE')
   } catch (err) {
     error('MATIC FUNDER', err)
