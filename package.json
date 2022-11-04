@@ -1,5 +1,5 @@
 {
-  "name": "matic-funder",
+  "name": "funmb",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,12 +9,15 @@
     "format": "standard --fix",
     "prepare": "husky install"
   },
+  "bin": {
+    "funmb": "./funder.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/WeatherXM/matic-funder.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Thodoris Mavroeidakos",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/WeatherXM/matic-funder/issues"
   },
@@ -25,7 +28,9 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
+    "chalk": "^5.1.2",
     "chrome-launcher": "^0.15.1",
+    "commander": "^9.4.1",
     "dotenv": "^16.0.1",
     "puppeteer": "^15.5.0",
     "web3": "^1.7.4",
