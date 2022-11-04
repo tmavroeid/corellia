@@ -1,6 +1,7 @@
 # funmb
 A CLI tool for funding an address with Matic Testnet Tokens using the Alchemy faucet.
 
+[![Github license](https://img.shields.io/github/license/tmavroeid/funmb)](https://img.shields.io/github/license/tmavroeid/funmb)
 ![release passing](https://github.com/tmavroeid/funmb/actions/workflows/release.yml/badge.svg)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/tmavroeid/funmb)
 
