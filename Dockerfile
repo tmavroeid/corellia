@@ -1,4 +1,4 @@
-FROM node:lts-alpine as matic-funder
+FROM node:lts-alpine as funmb
 COPY package.json app/
 COPY common/* app/common/
 COPY funder.js app/
