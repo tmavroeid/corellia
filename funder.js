@@ -1,23 +1,38 @@
 #! /usr/bin/env node
-const { program } = require('commander')
-require('dotenv').config()
+const conf = new (require('conf'))()
+const chalk = require('chalk')
 const logger = require('./common/logger')
+require('dotenv').config()
 const puppeteer = require('puppeteer')
 const Web3 = require('web3')
-const web3 = process.env.ALCHEMY_API_KEY ? 
-             new Web3(`https://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`) :
-             new Web3('https://rpc-mumbai.matic.today')
+const userCreds = conf.get('user-creds')
+
+const web3 = userCreds.apikey
+  ? new Web3(`https://polygon-mumbai.g.alchemy.com/v2/${userCreds.apikey}`)
+  : new Web3('https://rpc-mumbai.matic.today')
 
 const addresses = process.env.ADDRESSES.split(',').map(item => item.trim())
-const fundedAddress = web3.utils.toChecksumAddress(process.env.FUNDED_ADDRESS)
-const fundedAddressPrivateKey = process.env.FUNDED_ADDRESS_PRIVATE_KEY
-const email = process.env.ALCHEMY_EMAIL
-const pass = process.env.ALCHEMY_PASSWORD
 
 const info = (msg) => logger.log('info', `${msg}`)
 const error = (message, stacktrace = undefined) => logger.log('error', `${message}`, stacktrace)
 
-async function getMatic () {
+function setup ({ email, pass, apikey }) {
+  let userCreds = conf.get('user-creds')
+  if (!userCreds) {
+    userCreds = {}
+  }
+  userCreds.email = email
+  userCreds.pass = pass
+  if (typeof apikey !== 'undefined') {
+    userCreds.apikey = apikey
+  }
+  conf.set('user-creds', userCreds)
+  console.log(
+    chalk.green.bold('User credentials are stored!')
+  )
+}
+
+async function getMatic (email, pass, fundedAddress) {
   try {
     const browser = await puppeteer.launch({
       headless: false,
@@ -35,17 +50,17 @@ async function getMatic () {
     await page.type('#gatsby-focus-wrapper > div > div.css-zkbqul > div.css-r17iry > div > div.css-1c73mnp > form > label.css-2wrca4 > input', pass)
     await Promise.all([
       page.click('#gatsby-focus-wrapper > div > div.css-zkbqul > div.css-r17iry > div > div.css-1c73mnp > form > button'),
-      page.waitForNavigation(),
-      ]);
+      page.waitForNavigation()
+    ])
     await page.type('#root > div.alchemy-app > div.alchemy-app-content-container > div:nth-child(2) > div.row > div > span > div:nth-child(1) > div.col-md-9.col-sm-12 > input', fundedAddress)
     const element = await page.waitForSelector('#root > div.alchemy-app > div.alchemy-app-content-container > div:nth-child(2) > div.row > div > span > div:nth-child(1) > div.col-md-3.col-sm-12 > button')
     await element.evaluate(sendMatic => sendMatic.click())
     const success = await page.type('#root > div.basket > div > div > h3')
     const failure = await page.type('#root > div.alchemy-app > div.alchemy-app-content-container > div.alchemy-faucet-title-component.container > div.faucet-banner-container.show > div')
     browser.close()
-    if (failure){
+    if (failure) {
       throw new Error('No Funding Took Place')
-    }else{
+    } else {
       return true
     }
   } catch (err) {
@@ -74,11 +89,10 @@ function retryGetBalance (fundedAddress, balanceBefore, retriesLeft = 10) {
       if (retriesLeft === 1) {
         info('MAXIMUM RETRIES EXCEEDED')
         return new Error(`MAXIMUM RETRIES EXCEEDED FOR GET BALANCE FOR ${fundedAddress}`)
-      }
-      else if(balanceBefore>=web3.utils.fromWei(String(balance))){
+      } else if (balanceBefore >= web3.utils.fromWei(String(balance))) {
         info(`RETRYING GET BALANCE FOR ${fundedAddress}`)
         return delay(10000).then(() => { return retryGetBalance(fundedAddress, balanceBefore, retriesLeft - 1) })
-      }else{
+      } else {
         return web3.utils.fromWei(String(balance))
       }
     })
@@ -92,11 +106,11 @@ function retryGetBalance (fundedAddress, balanceBefore, retriesLeft = 10) {
     })
 }
 
-
-async function distributeMatic (fundedAmount = 2) {
+async function distributeMatic (fundedAddress, fundedAddressPrivateKey, fundedAmount, addresses) {
+  const valueToDistribute = fundedAmount / addresses.length
+  addresses = addresses.split(',').map(item => item.trim())
   const receipts = []
   const gasPrice = await web3.eth.getGasPrice()
-  const valueToDistribute = fundedAmount/adresses.length
   for (const address of addresses) {
     const transaction = {
       from: fundedAddress,
@@ -116,25 +130,36 @@ async function distributeMatic (fundedAmount = 2) {
   return receipts
 }
 
-async function main () {
+async function funding ({address}) {
   try {
-    let balanceBefore = await getBalance(fundedAddress)
+    const userCreds = conf.get('user-creds')
+    const balanceBefore = await getBalance(address)
     info(`BALANCE BEFORE IS ${balanceBefore}`)
-    await getMatic()
-    let balanceAfter = await retryGetBalance(fundedAddress, balanceBefore)
+    await getMatic(userCreds.email, userCreds.pass, address)
+    const balanceAfter = await retryGetBalance(address, balanceBefore)
     info(`BALANCE AFTER IS ${balanceAfter}`)
-    let receipts = []
-    let fundedAmount = balanceAfter-balanceBefore
-    if ( fundedAmount === 2) {
-      receipts = await distributeMatic(balanceAfter)
+    const fundedAmount = balanceAfter - balanceBefore
+    if (fundedAmount > 0) {
+      info('Balance is updated.')
     } else {
       throw new Error('Balance is not updated')
     }
-    receipts = await distributeMatic(fundedAmount)
-    Array.isArray(receipts) ? info(receipts) : info('NO FUNDING TOOK PLACE')
+    return true
   } catch (err) {
-    error('MATIC FUNDER', err)
+    error('FUNDING FAILED: ', err)
+    return false
   }
 }
 
-main()
+async function distribute ({ amount, address, privatekey, addresses }) {
+  let receipts = []
+  receipts = await distributeMatic(address, privatekey, amount, addresses)
+  Array.isArray(receipts) ? info(receipts) : info('NO TRANSFER OF TESTNET MATIC TOOK PLACE')
+  return true
+}
+
+module.exports = {
+  setup,
+  funding,
+  distribute
+}
