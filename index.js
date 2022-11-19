@@ -20,11 +20,11 @@ program
     const userCreds = conf.get('user-creds')
     if (userCreds.api) {
       log(
-        chalk.yellow.bold(`User credentials are: ${userCreds.email}, ${userCreds.pass}, ${userCreds.address} and ${userCreds.api}`)
+        chalk.yellow.bold(`User credentials are: ${userCreds.email}, ${userCreds.pass} and ${userCreds.api}`)
       )
     } else {
       log(
-        chalk.yellow.bold(`User credentials are: ${userCreds.email}, ${userCreds.pass} and ${userCreds.address}`)
+        chalk.yellow.bold(`User credentials are: ${userCreds.email} and ${userCreds.pass}`)
       )
     }
   })
