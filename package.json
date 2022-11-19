@@ -1,5 +1,5 @@
 {
-  "name": "funmb",
+  "name": "porg",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,27 +10,24 @@
     "prepare": "husky install"
   },
   "bin": {
-    "funmb": "./funder.js"
+    "porg": "./index.js"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/WeatherXM/matic-funder.git"
+    "type": "git"
   },
   "author": "Thodoris Mavroeidakos",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/WeatherXM/matic-funder/issues"
-  },
-  "homepage": "https://github.com/WeatherXM/matic-funder#readme",
+  "homepage": "https://github.com/tmavroeid/porg#readme",
   "devDependencies": {
     "husky": "^8.0.1",
     "standard": "^16.0.4"
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "chalk": "^5.1.2",
+    "chalk": "^4.1.2",
     "chrome-launcher": "^0.15.1",
     "commander": "^9.4.1",
+    "conf": "^10.2.0",
     "dotenv": "^16.0.1",
     "puppeteer": "^15.5.0",
     "web3": "^1.7.4",
@@ -39,5 +36,7 @@
   "engines": {
     "node": "16.x.x",
     "npm": "8.x.x"
-  }
+  },
+  "private": false,
+  "engineStrict": true
 }
