@@ -35,4 +35,9 @@ winston.configure({
   transports: transports
 })
 
+winston.configure({
+  format: format.combine(format.colorize({ all: true })),
+  transports: transports
+})
+
 module.exports = winston
