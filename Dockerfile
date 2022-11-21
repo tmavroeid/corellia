@@ -1,4 +1,4 @@
-FROM node:lts-alpine as porg
+FROM node:lts-alpine as corellia
 COPY package.json app/
 COPY common/* app/common/
 COPY funder.js app/

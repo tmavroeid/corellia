@@ -1,5 +1,5 @@
 {
-  "name": "porg",
+  "name": "corellia",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,14 +9,14 @@
     "prepare": "husky install"
   },
   "bin": {
-    "porg": "./index.js"
+    "corellia": "./index.js"
   },
   "repository": {
     "type": "git"
   },
   "author": "Thodoris Mavroeidakos",
   "license": "MIT",
-  "homepage": "https://github.com/tmavroeid/porg#readme",
+  "homepage": "https://github.com/tmavroeid/corellia#readme",
   "devDependencies": {
     "husky": "^8.0.1",
     "standard": "^16.0.4"
