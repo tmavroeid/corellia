@@ -1,9 +1,7 @@
 #! /usr/bin/env node
 const { program } = require('commander')
+const { setupCredentials, getCredentials, getBalanceFromCLI, funding, distribute } = require('./funder.js')
 const conf = new (require('conf'))()
-const { setup, funding, distribute } = require('./funder.js')
-const chalk = require('chalk')
-const log = console.log
 
 program
   .command('set-credentials')
@@ -11,36 +9,31 @@ program
   .requiredOption('-pass, --pass <value>', 'The pass for the Alchemy account.')
   .option('-apikey, --apikey <value>', 'The API key for the Alchemy account.')
   .description('Setup user credentials for Alchemy: api-key (optional), email, password and address.')
-  .action(setup)
+  .action(setupCredentials)
 
 program
   .command('get-credentials')
   .description('Get user credentials for Alchemy.')
-  .action(() => {
-    const userCreds = conf.get('user-creds')
-    if (userCreds.api) {
-      log(
-        chalk.yellow.bold(`User credentials are: ${userCreds.email}, ${userCreds.pass} and ${userCreds.api}`)
-      )
-    } else {
-      log(
-        chalk.yellow.bold(`User credentials are: ${userCreds.email} and ${userCreds.pass}`)
-      )
-    }
-  })
+  .action(getCredentials)
+
+program
+  .command('get-balance')
+  .requiredOption('-address, --address <value>', 'The address to get balance for.')
+  .description('Get testnet Matic balance for address.')
+  .action(getBalanceFromCLI)
 
 program
   .command('funding')
   .requiredOption('-address, --address <value>', 'The address to be funded.')
-  .description('Fund address with testnet MATIC.')
+  .description('Fund address with testnet Matic.')
   .action(funding)
 
 program
   .command('distribute')
-  .requiredOption('-amount, --amount <value>', 'The address to be funded.')
-  .requiredOption('-address, --address <value>', 'The address to be funded.')
-  .requiredOption('-privatekey, --privatekey <value>', 'The address to be funded.')
-  .requiredOption('-addresses, --addresses <value>', 'The address to be funded.')
+  .requiredOption('-amount, --amount <value>', 'The amount to be distributed.')
+  .requiredOption('-address, --address <value>', 'The address to distribute the testnet Matic.')
+  .requiredOption('-privatekey, --privatekey <value>', 'The private key of the address distributing the testnet Matic.')
+  .requiredOption('-addresses, --addresses <value or values>', 'The addresses to receive the testnet Matic (separated with commas).')
   .description('Distribute testnet MATIC equally between some addresses.')
   .action(distribute)
 
