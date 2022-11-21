@@ -60,7 +60,7 @@ function getCredentials () {
 async function getMatic (email, pass, fundedAddress) {
   try {
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: true, //decide whether to open browser window or not
       args: [
         '--disable-gpu',
         '--disable-dev-shm-usage',
@@ -81,15 +81,11 @@ async function getMatic (email, pass, fundedAddress) {
     const element = await page.waitForSelector('#root > div.alchemy-app > div.alchemy-app-content-container > div:nth-child(2) > div.row > div > span > div:nth-child(1) > div.col-md-3.col-sm-12 > button')
     await element.evaluate(sendMatic => sendMatic.click())
     const success = await page.type('#root > div.basket > div > div > h3')
-    const failure = await page.type('#root > div.alchemy-app > div.alchemy-app-content-container > div.alchemy-faucet-title-component.container > div.faucet-banner-container.show > div')
-    browser.close()
+    const failure = await page.type('#root > div.alchemy-app > div.alchemy-app-content-container > div.alchemy-faucet-title-component.container > div.faucet-banner-container.show > div > span')
     if (failure) {
       error('No Funding Took Place')
-      throw new Error('No Funding Took Place')
-    } else {
-      browser.close()
-      return true
     }
+    browser.close()
   } catch (err) {
     return err
   }

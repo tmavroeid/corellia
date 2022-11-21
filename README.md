@@ -1,8 +1,8 @@
 # porg
 
 [![Github license](https://img.shields.io/github/license/tmavroeid/porg)](https://img.shields.io/github/license/tmavroeid/porg)
-![release passing](https://github.com/tmavroeid/porg/actions/workflows/release.yml/badge.svg)
-[![GitHub tag](https://img.shields.io/github/v/tag/tmavroeid/porg)](https://img.shields.io/github/v/tag/tmavroeid/porg)
+[![GitHub Release](https://img.shields.io/github/release/tmavroeid/porg.svg?style=flat)](https://github.com/tmavroeid/porg/releases)
+
 
 A CLI tool to perform the following operations with testnet Matic:
 - fund an address with testnet Matic,
