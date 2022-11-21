@@ -119,11 +119,11 @@ function retryGetBalance (fundedAddress, balanceBefore, apikey, retriesLeft) {
   return web3.eth.getBalance(fundedAddress)
     .then((balance) => {
       if (retriesLeft === 1) {
-        return Promise.reject(`MAXIMUM RETRIES EXCEEDED`)
+        return Promise.reject('MAXIMUM RETRIES EXCEEDED')
       } else if (balanceBefore >= web3.utils.fromWei(String(balance))) {
         working(`BALANCE IS NOT UPDATED YET. ${retriesLeft} RETRIES LEFT TO GET UPDATED BALANCE FOR ${fundedAddress}`)
         return delay(10000).then(() => {
-          return retryGetBalance(fundedAddress, balanceBefore, apikey, retriesLeft-1)
+          return retryGetBalance(fundedAddress, balanceBefore, apikey, retriesLeft - 1)
         })
       } else {
         return web3.utils.fromWei(String(balance))
@@ -132,7 +132,7 @@ function retryGetBalance (fundedAddress, balanceBefore, apikey, retriesLeft) {
 }
 
 async function distributeMatic (fundedAddress, fundedAddressPrivateKey, fundedAmount, addresses, apikey) {
-  try{
+  try {
     const web3 = typeof apikey === 'undefined'
       ? new Web3('https://rpc-mumbai.matic.today')
       : new Web3(`https://polygon-mumbai.g.alchemy.com/v2/${apikey}`)
@@ -165,53 +165,53 @@ async function distributeMatic (fundedAddress, fundedAddressPrivateKey, fundedAm
 async function funding ({ address }) {
   const userCreds = conf.get('user-creds')
   return getBalance(address, userCreds.apikey)
-  .then((balanceBefore)=>{
-    info(`BALANCE BEFORE FUNDING IS ${balanceBefore}`)
-    return props({retrieveMatic:getMatic(userCreds.email, userCreds.pass, address), balanceBefore})
-  })
-  .then(({retrieveMatic, balanceBefore}) => {
-    return props({balanceAfter:retryGetBalance(address, balanceBefore, userCreds.apikey, 5), balanceBefore})
-  })
-  .then(({balanceAfter, balanceBefore})=>{
-    info(`BALANCE AFTER FUNDING IS ${balanceAfter}`)
-    const fundedAmount = balanceAfter - balanceBefore
-    if (fundedAmount > 0) {
-      info('Balance is updated.')
-    } else {
-      throw new Error('Balance is not updated')
-    }
-    return true
-  })
-  .catch((err) => {
-    error(`FUNDING FAILED: ${err}`)
-    log(chalk.magenta.bold('ALCHEMY MUMBAI FAUCET CAN ONLY BE USED ONCE DAILY.'))
-    process.exit()
-  })
+    .then((balanceBefore) => {
+      info(`BALANCE BEFORE FUNDING IS ${balanceBefore}`)
+      return props({ retrieveMatic: getMatic(userCreds.email, userCreds.pass, address), balanceBefore })
+    })
+    .then(({ retrieveMatic, balanceBefore }) => {
+      return props({ balanceAfter: retryGetBalance(address, balanceBefore, userCreds.apikey, 5), balanceBefore })
+    })
+    .then(({ balanceAfter, balanceBefore }) => {
+      info(`BALANCE AFTER FUNDING IS ${balanceAfter}`)
+      const fundedAmount = balanceAfter - balanceBefore
+      if (fundedAmount > 0) {
+        info('Balance is updated.')
+      } else {
+        throw new Error('Balance is not updated')
+      }
+      return true
+    })
+    .catch((err) => {
+      error(`FUNDING FAILED: ${err}`)
+      log(chalk.magenta.bold('ALCHEMY MUMBAI FAUCET CAN ONLY BE USED ONCE DAILY.'))
+      process.exit()
+    })
 }
 
 async function getBalanceFromCLI ({ address }) {
   const userCreds = conf.get('user-creds')
   return getBalance(address, userCreds.apikey)
-  .then((balance) => {
-    info(`BALANCE IS ${balance} testnet Matic`)
-  })
-  .catch((err) => {
-    error(`GET BALANCE FAILED: ${err}`)
-    process.exit()
-  })
+    .then((balance) => {
+      info(`BALANCE IS ${balance} testnet Matic`)
+    })
+    .catch((err) => {
+      error(`GET BALANCE FAILED: ${err}`)
+      process.exit()
+    })
 }
 
 async function distribute ({ amount, address, privatekey, addresses }) {
   const userCreds = conf.get('user-creds')
   distributeMatic(address, privatekey, amount, addresses, userCreds.apikey)
-  .then((receipts) => {
-    Array.isArray(receipts) ? info(`Transaction hashes for distribution: ${receipts}`) : info('NO TRANSFER OF TESTNET MATIC TOOK PLACE')
-    return true
-  })
-  .catch((err)=>{
-    error(`DISTRIBUTE FAILED: ${err}`)
-    process.exit()
-  })
+    .then((receipts) => {
+      Array.isArray(receipts) ? info(`Transaction hashes for distribution: ${receipts}`) : info('NO TRANSFER OF TESTNET MATIC TOOK PLACE')
+      return true
+    })
+    .catch((err) => {
+      error(`DISTRIBUTE FAILED: ${err}`)
+      process.exit()
+    })
 }
 
 module.exports = {

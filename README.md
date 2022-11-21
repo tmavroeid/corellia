@@ -1,9 +1,15 @@
-# funmb
-A CLI tool for funding an address with Matic Testnet Tokens using the Alchemy faucet.
+# porg
 
-[![Github license](https://img.shields.io/github/license/tmavroeid/funmb)](https://img.shields.io/github/license/tmavroeid/funmb)
-![release passing](https://github.com/tmavroeid/funmb/actions/workflows/release.yml/badge.svg)
-[![GitHub tag](https://img.shields.io/github/v/tag/tmavroeid/funmb)](https://img.shields.io/github/v/tag/tmavroeid/funmb)
+[![Github license](https://img.shields.io/github/license/tmavroeid/porg)](https://img.shields.io/github/license/tmavroeid/porg)
+![release passing](https://github.com/tmavroeid/porg/actions/workflows/release.yml/badge.svg)
+[![GitHub tag](https://img.shields.io/github/v/tag/tmavroeid/porg)](https://img.shields.io/github/v/tag/tmavroeid/porg)
+
+A CLI tool to perform the following operations with testnet Matic:
+- fund an address with testnet Matic,
+- get balance of testnet Matic,
+- distribute an amount of testnet Matic equally to a number of addresses
+- send testnet Matic to an address.
+
 
 ##### Table of Contents 
 * [Installation](#installation)
@@ -14,38 +20,34 @@ A CLI tool for funding an address with Matic Testnet Tokens using the Alchemy fa
 
 ## <a name="installation">Installation</a>
 
-Install the package with yarn or npm:
+Install the package with npm:
 
 ```bash
-yarn install
 npm install
 ```
 
 ## <a name="build">Build</a>
 
-Build the package with yarn or npm:
+Build the package with npm:
 
 ```bash
-yarn build
 npm build
 ```
 
 ## <a name="introduction">Introduction</a>
-This project contains a script which by scraping the mumbai faucet of Alchemy gets 5 Matic and then distributes 1 Matic to the 4 addresses used in staging and production and keeps 1 Matic in the FUNDED_ADDRESS for future use.
+This project scrapes the mumbai faucet of Alchemy in order to get 2 testnet Matic.
 
 
 ## <a name="prerequisites">Prerequisites</a>
 
-Please make sure to initialize an **.env** file following the environmental variables in **.env.template**. 
-
-- An account should be created in [Alchemy](https://www.alchemy.com) in order to use it in the faucet and get 5 Matic/day instead of 1 Matic/day. The funding from the faucet can take place once every 24 hours.
+Please make sure to setup the tool with an Alchemy email and password. For this purpose, an account should be created in [Alchemy](https://www.alchemy.com) in order to use it in the faucet and get 2 Matic/day instead of 1 Matic/day. The funding from the faucet can take place once every 24 hours.
 
 
-## Usage
+## Install tool
 
-To initiate the daily funding: 
+To install the porg CLI localy: 
 ```
-npm run funding
+npm install porg
 ```
 
 ## <a name="license">License</a>
