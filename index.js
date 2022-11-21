@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 const { program } = require('commander')
-const { setupCredentials, getCredentials, getBalanceFromCLI, funding, distribute } = require('./funder.js')
+const { setupCredentials, getCredentials, getBalanceFromCLI, funding, distribute } = require(__dirname+'/funder.js')
 
 program
   .command('set-credentials')
