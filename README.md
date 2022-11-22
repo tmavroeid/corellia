@@ -12,7 +12,6 @@ A CLI tool to perform the following operations with testnet Matic:
 
 ##### Table of Contents 
 * [Installation](#installation)
-* [Build](#build)
 * [Introduction](#introduction)
 * [Prerequisites](#prerequisites)  
 * [Install Tool](#install_tool)
