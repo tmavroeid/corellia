@@ -3,6 +3,7 @@
 [![Github license](https://img.shields.io/github/license/tmavroeid/corellia)](https://img.shields.io/github/license/tmavroeid/corellia)
 [![GitHub Release](https://img.shields.io/github/release/tmavroeid/corellia.svg)](https://github.com/tmavroeid/corellia/releases)
 
+
 A CLI tool to perform the following operations with testnet Matic:
 - fund an address with testnet Matic,
 - get balance of testnet Matic,
