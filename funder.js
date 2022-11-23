@@ -45,13 +45,13 @@ function setupCredentials ({ email, pass, apikey }) {
 
 function getCredentials () {
   const userCreds = conf.get('user-creds')
-  if (userCreds.api) {
+  if (typeof userCreds.api === 'undefined') {
     log(
-      chalk.yellow.bold(`User credentials are: ${userCreds.email}, ${userCreds.pass} and ${userCreds.api}`)
+      chalk.yellow.bold(`User credentials are: ${userCreds.email} and ${userCreds.pass}`)
     )
   } else {
     log(
-      chalk.yellow.bold(`User credentials are: ${userCreds.email} and ${userCreds.pass}`)
+      chalk.yellow.bold(`User credentials are: ${userCreds.email}, ${userCreds.pass} and ${userCreds.api}`)
     )
   }
 }
