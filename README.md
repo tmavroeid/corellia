@@ -9,7 +9,6 @@ A CLI tool to perform the following operations with testnet Matic:
 - distribute an amount of testnet Matic equally to a number of addresses
 - send testnet Matic to an address.
 
-
 ##### Table of Contents 
 * [Installation](#installation)
 * [Introduction](#introduction)
