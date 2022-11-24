@@ -2,7 +2,9 @@
 const conf = new (require('conf'))()
 const chalk = require('chalk')
 require('dotenv').config()
-const puppeteer = require('puppeteer')
+const puppeteer = require('puppeteer-extra')
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+puppeteer.use(StealthPlugin())
 const Web3 = require('web3')
 const log = console.log
 const info = (msg) => log(chalk.green.bold(`${msg}`))
