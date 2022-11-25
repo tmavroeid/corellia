@@ -51,7 +51,7 @@ Options:
   -h, --help                 display help for command
 
 Commands:
-  set-credentials [options]  Setup user credentials for Alchemy: api-key (optional), email, password and address.
+  set-credentials [options]  Setup user credentials for Alchemy: email, password and api-key (optional).
   get-credentials            Get user credentials for Alchemy.
   get-balance [options]      Get testnet Matic balance for address.
   funding [options]          Fund address with testnet Matic.
