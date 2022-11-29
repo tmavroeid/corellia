@@ -2,12 +2,12 @@
 
 Corellia is a CLI tool that funds and Ethereum address with testnet Matic from the Alchemy faucet and distributes testnet Matic between addresses.
 
-## <a name="Status">Installation</a>
+## <a name="Status">Status</a>
 
 [![Github license](https://img.shields.io/github/license/tmavroeid/corellia)](https://img.shields.io/github/license/tmavroeid/corellia)
 [![GitHub Release](https://img.shields.io/github/release/tmavroeid/corellia.svg)](https://github.com/tmavroeid/corellia/releases)
 
-## <a name="Summary">Installation</a>
+## <a name="Summary">Summary</a>
 
 A CLI tool to perform the following operations with testnet Matic:
 - fund an address with testnet Matic,
