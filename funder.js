@@ -2,9 +2,7 @@
 const conf = new (require('conf'))()
 const chalk = require('chalk')
 require('dotenv').config()
-const puppeteer = require('puppeteer-extra')
-const StealthPlugin = require('puppeteer-extra-plugin-stealth')
-puppeteer.use(StealthPlugin())
+const puppeteer = require('puppeteer')
 const Web3 = require('web3')
 const log = console.log
 const info = (msg) => log(chalk.green.bold(`${msg}`))
@@ -61,7 +59,7 @@ function getCredentials () {
 async function getMatic (email, pass, fundedAddress) {
   try {
     const browser = await puppeteer.launch({
-      headless: true, //decide whether to open browser window or not
+      headless: false, //decide whether to open browser window or not
       args: [
         '--disable-gpu',
         '--disable-dev-shm-usage',
