@@ -56,7 +56,7 @@ function getCredentials () {
   }
 }
 
-async function getMatic (email, pass, fundedAddress) {
+async function scrapeAlchemy (email, pass, fundedAddress, network) {
   try {
     const browser = await puppeteer.launch({
       headless: false, //decide whether to open browser window or not
@@ -68,8 +68,12 @@ async function getMatic (email, pass, fundedAddress) {
       ]
     })
     const page = await browser.newPage()
-
-    await page.goto('https://auth.alchemyapi.io/?redirectUrl=https%3A%2F%2Fmumbaifaucet.com')
+    if(network==='mumbai'){
+      await page.goto('https://mumbaifaucet.com')
+    }else{
+      await page.goto('https://goerlifaucet.com')
+    }
+    await delay(60000)
     await page.type('#gatsby-focus-wrapper > div > div.css-zkbqul > div.css-r17iry > div > div.css-1c73mnp > form > label.css-1ca7lze > input', email)
     await page.type('#gatsby-focus-wrapper > div > div.css-zkbqul > div.css-r17iry > div > div.css-1c73mnp > form > label.css-2wrca4 > input', pass)
     await Promise.all([
@@ -78,7 +82,7 @@ async function getMatic (email, pass, fundedAddress) {
     ])
     await page.type('#root > div.alchemy-app > div.alchemy-app-content-container > div:nth-child(2) > div.row > div > span > div:nth-child(1) > div.col-md-9.col-sm-12 > input', fundedAddress)
     const element = await page.waitForSelector('#root > div.alchemy-app > div.alchemy-app-content-container > div:nth-child(2) > div.row > div > span > div:nth-child(1) > div.col-md-3.col-sm-12 > button')
-    await element.evaluate(sendMatic => sendMatic.click())
+    await element.evaluate(sendTokens => sendTokens.click())
     const success = await page.type('#root > div.basket > div > div > h3')
     const failure = await page.type('#root > div.alchemy-app > div.alchemy-app-content-container > div.alchemy-faucet-title-component.container > div.faucet-banner-container.show > div > span')
     if (failure) {
@@ -94,10 +98,22 @@ function delay (ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-function getBalance (fundedAddress, apikey) {
-  const web3 = typeof apikey === 'undefined'
+function getController(network, apikey){
+  let web3
+  if(network==='mumbai'){
+    web3 = typeof apikey === 'undefined'
     ? new Web3('https://rpc-mumbai.matic.today')
     : new Web3(`https://polygon-mumbai.g.alchemy.com/v2/${apikey}`)
+  } else {
+    web3 = typeof apikey === 'undefined'
+    ? new Web3('https://rpc.ankr.com/eth_goerli')
+    : new Web3(`https://eth-goerli.g.alchemy.com/v2/${apikey}`)
+  }
+  return web3
+}
+
+function getBalance (fundedAddress, network, apikey) {
+  const web3 = getController(network, apikey)
   return web3.eth.getBalance(fundedAddress)
     .then((balance) => {
       return web3.utils.fromWei(String(balance))
@@ -107,10 +123,8 @@ function getBalance (fundedAddress, apikey) {
     })
 }
 
-function retryGetBalance (fundedAddress, balanceBefore, apikey, retriesLeft) {
-  const web3 = typeof apikey === 'undefined'
-    ? new Web3('https://rpc-mumbai.matic.today')
-    : new Web3(`https://polygon-mumbai.g.alchemy.com/v2/${apikey}`)
+function retryGetBalance (fundedAddress, balanceBefore, apikey, retriesLeft, network) {
+  const web3 = getController(network, apikey)
   return web3.eth.getBalance(fundedAddress)
     .then((balance) => {
       if (retriesLeft === 1) {
@@ -118,7 +132,7 @@ function retryGetBalance (fundedAddress, balanceBefore, apikey, retriesLeft) {
       } else if (balanceBefore >= web3.utils.fromWei(String(balance))) {
         working(`BALANCE IS NOT UPDATED YET. ${retriesLeft} RETRIES LEFT TO GET UPDATED BALANCE FOR ${fundedAddress}`)
         return delay(10000).then(() => {
-          return retryGetBalance(fundedAddress, balanceBefore, apikey, retriesLeft - 1)
+          return retryGetBalance(fundedAddress, balanceBefore, apikey, retriesLeft - 1, network)
         })
       } else {
         return web3.utils.fromWei(String(balance))
@@ -126,11 +140,9 @@ function retryGetBalance (fundedAddress, balanceBefore, apikey, retriesLeft) {
     })
 }
 
-async function distributeMatic (fundedAddress, fundedAddressPrivateKey, fundedAmount, addresses, apikey) {
+async function distributeTokens (fundedAddress, fundedAddressPrivateKey, fundedAmount, addresses, network, apikey) {
   try {
-    const web3 = typeof apikey === 'undefined'
-      ? new Web3('https://rpc-mumbai.matic.today')
-      : new Web3(`https://polygon-mumbai.g.alchemy.com/v2/${apikey}`)
+    const web3 = getController(network, apikey)
     const valueToDistribute = fundedAmount / addresses.length
     addresses = addresses.split(',').map(item => item.trim())
     const receipts = []
@@ -157,15 +169,15 @@ async function distributeMatic (fundedAddress, fundedAddressPrivateKey, fundedAm
   }
 }
 
-async function funding ({ address }) {
+async function funding ({ address, network }) {
   const userCreds = conf.get('user-creds')
-  return getBalance(address, userCreds.apikey)
+  return getBalance(address, network, userCreds.apikey)
     .then((balanceBefore) => {
       info(`BALANCE BEFORE FUNDING IS ${balanceBefore}`)
-      return props({ retrieveMatic: getMatic(userCreds.email, userCreds.pass, address), balanceBefore })
+      return props({ retrieveToken: scrapeAlchemy(userCreds.email, userCreds.pass, address, network), balanceBefore })
     })
-    .then(({ retrieveMatic, balanceBefore }) => {
-      return props({ balanceAfter: retryGetBalance(address, balanceBefore, userCreds.apikey, 5), balanceBefore })
+    .then(({ retrieveToken, balanceBefore }) => {
+      return props({ balanceAfter: retryGetBalance(address, balanceBefore, userCreds.apikey, 5, network), balanceBefore })
     })
     .then(({ balanceAfter, balanceBefore }) => {
       info(`BALANCE AFTER FUNDING IS ${balanceAfter}`)
@@ -184,11 +196,11 @@ async function funding ({ address }) {
     })
 }
 
-async function getBalanceFromCLI ({ address }) {
+async function getBalanceFromCLI ({ address, network }) {
   const userCreds = conf.get('user-creds')
-  return getBalance(address, userCreds.apikey)
+  return getBalance(address, network, userCreds.apikey)
     .then((balance) => {
-      info(`BALANCE IS ${balance} testnet Matic`)
+      info(`${balance}`)
     })
     .catch((err) => {
       error(`GET BALANCE FAILED: ${err}`)
@@ -196,9 +208,9 @@ async function getBalanceFromCLI ({ address }) {
     })
 }
 
-async function distribute ({ amount, address, privatekey, addresses }) {
+async function distribute ({ amount, address, privatekey, addresses, network }) {
   const userCreds = conf.get('user-creds')
-  distributeMatic(address, privatekey, amount, addresses, userCreds.apikey)
+  distributeTokens(address, privatekey, amount, addresses, network, userCreds.apikey)
     .then((receipts) => {
       Array.isArray(receipts) ? info(`Transaction hashes for distribution: ${receipts}`) : info('NO TRANSFER OF TESTNET MATIC TOOK PLACE')
       return true
